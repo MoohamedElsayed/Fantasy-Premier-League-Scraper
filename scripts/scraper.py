@@ -1,11 +1,33 @@
 import requests
-
-
+import os, os.path
 def main():
 
     extracted_data = extract()
-    print(extracted_data['positions'])
+    save_to_csv(extracted_data)
 
+
+
+def safe_open_w(path):
+    ''' Open "path" for writing, creating any parent directories as needed.
+    '''
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    return open(path, 'w')
+
+
+
+def save_to_csv(data):
+
+    for key, value in data.items():
+
+        with safe_open_w(f'/home/mohamed/Desktop/fpl/fpl_data/{key}.csv') as f:
+
+            # writing headers
+            f.write(','.join(value[0].keys()))
+            f.write('\n')
+
+            for row in value:
+                f.write(','.join(str(x) for x in row.values()))
+                f.write('\n')
 
 
 
@@ -94,13 +116,7 @@ def extract():
 
     return {'players':players, 'teams':teams, 'positions':positions, 'playersperformance':playersperformance}
 
-        
-
-
-
-
-
-
+    
 
 if __name__ == "__main__":
     main()
