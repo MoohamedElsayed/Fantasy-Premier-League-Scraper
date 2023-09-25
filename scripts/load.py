@@ -235,7 +235,7 @@ def save_to_csv(data):
     # Iterating over the dictionary keys, values and writing them into seperate csv files
     for key, value in data.items():
 
-        with _safe_open_w(os.getcwd() + f'/fpl_data/{key}.csv') as f:
+        with _safe_open_w(os.path.join(os.getcwd() , f'fpl_data/{key}.csv')) as f:
 
             # writing headers
             f.write(','.join(value[0].keys()))
