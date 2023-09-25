@@ -1,41 +1,24 @@
 import requests
-import os, os.path
-def main():
-
-    extracted_data = extract()
-    save_to_csv(extracted_data)
-
-
-
-def safe_open_w(path):
-    ''' Open "path" for writing, creating any parent directories as needed.
-    '''
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    return open(path, 'w')
-
-
-
-def save_to_csv(data):
-
-    for key, value in data.items():
-
-        with safe_open_w(f'/home/mohamed/Desktop/fpl/fpl_data/{key}.csv') as f:
-
-            # writing headers
-            f.write(','.join(value[0].keys()))
-            f.write('\n')
-
-            for row in value:
-                f.write(','.join(str(x) for x in row.values()))
-                f.write('\n')
-
 
 
 def extract():
+    """ Extracts specific data from fpl API:
+            'https://fantasy.premierleague.com/api/bootstrap-static/'.
+
+    
+        Parameters :
+            None
+
+            
+        Returns :
+            Dictionary of extracted data.
+                keys : players, teams, positions, playersperformance.
+                values : list of dictionaries where each dictionary is a data item.
+    """
 
     url = 'https://fantasy.premierleague.com/api/bootstrap-static/' 
 
-
+    # Sending the request and checking if the status code is ok
     r = requests.get(url)
 
     if r.status_code != 200:
@@ -43,7 +26,7 @@ def extract():
     
     data = r.json()
 
-
+    # Extracting the data from the JSON file 
     players_data = data['elements']
     teams_data = data['teams']
     positions_data = data['element_types']
@@ -116,7 +99,3 @@ def extract():
 
     return {'players':players, 'teams':teams, 'positions':positions, 'playersperformance':playersperformance}
 
-    
-
-if __name__ == "__main__":
-    main()
