@@ -31,7 +31,7 @@ def _create_mysqldb(host ,user, password ,dbname ):
     conn.database = dbname
 
     # Creating the tables in database using the schema stored in .sql file
-    with open('/home/mohamed/Desktop/fpl/scripts/FPL_DB.sql','r') as f:
+    with open(os.path.join(os.path.dirname(__file__),'FPL_DB.sql'),'r') as f:
         cur.execute(f.read(), multi=True)
 
     # Closing the cursor and the connection
@@ -235,7 +235,7 @@ def save_to_csv(data):
     # Iterating over the dictionary keys, values and writing them into seperate csv files
     for key, value in data.items():
 
-        with _safe_open_w(f'/home/mohamed/Desktop/fpl/fpl_data/{key}.csv') as f:
+        with _safe_open_w(os.getcwd() + f'/fpl_data/{key}.csv') as f:
 
             # writing headers
             f.write(','.join(value[0].keys()))
