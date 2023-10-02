@@ -221,13 +221,14 @@ def _safe_open_w(path):
 
 
 
-def save_to_csv(data):
+def save_to_csv(data, path):
     """ Saving the data into csv file in folder named 'fpl_data' 
 
         Parameters:
             data (dictionary) : the data to be saved.
                     keys : players, teams, positions, playersperformance.
                     values : list of dictionaries where each dictionary is a data item.
+            path : The path were you want to save tour csv files
         Returns:
             None
     """
@@ -235,7 +236,7 @@ def save_to_csv(data):
     # Iterating over the dictionary keys, values and writing them into seperate csv files
     for key, value in data.items():
 
-        with _safe_open_w(os.path.join(os.getcwd() , f'fpl_data/{key}.csv')) as f:
+        with _safe_open_w(os.path.join(path , f'fpl_data/{key}.csv')) as f:
 
             # writing headers
             f.write(','.join(value[0].keys()))

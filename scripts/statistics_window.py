@@ -1,5 +1,5 @@
 from PyQt5 import QtCore , QtGui, QtWidgets
-from PyQt5.QtCore import QAbstractTableModel, Qt, QSortFilterProxyModel 
+from PyQt5.QtCore import QAbstractTableModel, Qt, QSortFilterProxyModel , pyqtSignal
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtWidgets import  QVBoxLayout, QWidget, QTableView, QLineEdit, QHBoxLayout, QLabel,QComboBox
 import sys
@@ -42,6 +42,9 @@ class TableModel(QAbstractTableModel):
 
 
 class StatisticsWindow(QMainWindow):
+
+    closed = pyqtSignal()
+
     def __init__(self):
         super(StatisticsWindow, self).__init__()
         self.table = QTableView()
@@ -173,6 +176,10 @@ class StatisticsWindow(QMainWindow):
         conn.close()
 
         return result, col_names
+    
+    def closeEvent(self, event):
+        self.closed.emit()
+        event.accept()
 
 
 
