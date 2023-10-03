@@ -1,10 +1,10 @@
 from PyQt5 import QtCore , QtGui, QtWidgets
 from PyQt5.QtCore import QAbstractTableModel, Qt, QSortFilterProxyModel , pyqtSignal
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QFormLayout, QDialogButtonBox, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QDialog, QFormLayout, QDialogButtonBox, QMessageBox
 from PyQt5.QtWidgets import  QVBoxLayout, QWidget, QTableView, QLineEdit, QHBoxLayout, QLabel,QComboBox
-import sys
 
 class TableModel(QAbstractTableModel):
+    """Table model class to create our the data table with"""
     def __init__(self, data, colnames):
         super().__init__()
         self._data = data
@@ -38,6 +38,7 @@ class TableModel(QAbstractTableModel):
 
 
 class StatisticsWindow(QMainWindow):
+    """Window to show statistics data for the player """
 
     closed = pyqtSignal()
 
@@ -103,9 +104,6 @@ class StatisticsWindow(QMainWindow):
         self.setWindowIcon(icon)
         self.setWindowTitle('Fantasy Premier Leauge Statistics')
 
-    def close_me(self):
-        # handler for signal    
-        self.close()
 
     # Function to change the column to be filtered on 
     def filtered_col_changed(self, index):
@@ -113,13 +111,14 @@ class StatisticsWindow(QMainWindow):
 
 
 
-    
+    # handler for signal when closing the window
     def closeEvent(self, event):
         self.closed.emit()
         event.accept()
 
 
 class DBInputWindow(QDialog):
+    """Window to Take input (host, user, password) from user"""
     ok_pressed = 0
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -137,8 +136,11 @@ class DBInputWindow(QDialog):
 
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
 
+        self.informative_text = QLabel("Leave Null For default Values.")
+        self.informative_text.setFont(QtGui.QFont("Arial", 10,50))
+
         layout = QFormLayout(self)
-        layout.addWidget(QLabel("Leave Null For default Values."))
+        layout.addWidget(self.informative_text)
         layout.addRow("Enter localhost", self.localhost)
         layout.addRow("Enter user name", self.user)
         layout.addRow("Enter user password", self.password)
@@ -157,6 +159,7 @@ class DBInputWindow(QDialog):
 
 
 class MassageWindow(QMessageBox):
+    """Window ro show message to the user"""
     def __init__(self, title,text,button,icon):
         super(MassageWindow, self).__init__()
         self.setWindowTitle(title)
@@ -171,9 +174,5 @@ class MassageWindow(QMessageBox):
         elif icon == 'Information':
             self.setIcon(QMessageBox.Information)
 
+        self.setFont(QtGui.QFont("Arial", 12))
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    win = StatisticsWindow()
-    win.show()
-    sys.exit(app.exec_())

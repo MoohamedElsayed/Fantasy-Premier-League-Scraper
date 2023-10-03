@@ -1,13 +1,10 @@
 from PyQt5 import QtGui, QtWidgets
-from PyQt5.QtWidgets import  QWidget,QComboBox, QPushButton,QMessageBox,QApplication, QMainWindow, QFormLayout
-
-
-from statistics_window import StatisticsWindow, DBInputWindow, MassageWindow
-from extract import extract
-from load import save_to_csv, save_to_mysqldb
+from PyQt5.QtWidgets import  QWidget,QComboBox, QPushButton,QMessageBox, QMainWindow, QFormLayout, QLabel, QHBoxLayout
+from .side_windows import StatisticsWindow, DBInputWindow, MassageWindow
+from .extract import extract
+from .load import save_to_csv, save_to_mysqldb
 
 import pandas as pd
-import sys
 import mysql.connector
 
 class MainWindow(QMainWindow):
@@ -16,37 +13,46 @@ class MainWindow(QMainWindow):
         self.data, self.colnames = None, None
         self.setWindowTitle('Welcome to Fantasy Premier Leauge Scraper')
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("fpl_logo.png"), QtGui.QIcon.Selected, QtGui.QIcon.On)
+        icon.addPixmap(QtGui.QPixmap("scripts/fpl_logo.png"), QtGui.QIcon.Selected, QtGui.QIcon.On)
         self.setWindowIcon(icon)
-        self.setFixedSize(400,175)
-        
+        self.setFixedSize(500,175)
 
         self.extracted_data = None
 
         self.scrape_button = QPushButton('Fetch FPL Data')
+        self.scrape_button.setFont(QtGui.QFont("Arial", 12,60))
         self.scrape_button.clicked.connect(self.scrape_data)
 
         self.savecsv_button = QPushButton('Save Data to CSV Files')
+        self.savecsv_button.setFont(QtGui.QFont("Arial", 12,60))
         self.savecsv_button.clicked.connect(self.save_tocsv)
 
         self.savedb_button = QPushButton('Save Data to MYSQL DataBase')
+        self.savedb_button.setFont(QtGui.QFont("Arial", 12,60))
         self.savedb_button.clicked.connect(self.save_todb)
 
 
         self.showstatistics_button = QPushButton('Show Players Statistics')
+        self.showstatistics_button.setFont(QtGui.QFont("Arial", 12,60))
         self.showstatistics_button.clicked.connect(self.show_statictics)
 
         self.show_option = 0
         self.show_options = QComboBox()
         self.show_options.addItems(['Data Fetched', 'Data in the Database'])
+        self.show_options.setFont(QtGui.QFont("Arial", 12))
         self.show_options.currentIndexChanged.connect(self.show_option_changed)
+        self.label_text = QLabel('Select Where to show data from : ')
+        self.label_text.setFont(QtGui.QFont("Arial", 12,60))
+        self.option_layout = QHBoxLayout()
+        self.option_layout.addWidget(self.label_text)
+        self.option_layout.addWidget(self.show_options)
 
         self.layout = QFormLayout()
 
         self.layout.addRow(self.scrape_button)
         self.layout.addRow(self.savecsv_button)
         self.layout.addRow(self.savedb_button)
-        self.layout.addRow('Select Where to show data from : ',self.show_options)
+        self.layout.addRow(self.option_layout)
         self.layout.addRow(self.showstatistics_button)
 
         container = QWidget()
@@ -54,7 +60,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(container)
         
     def scrape_data(self):
-
+        """Function to scrape data from fpl api when the button is pressed"""
         try:
             self.extracted_data = extract()
             msg = MassageWindow(title='Fetch Data',
@@ -62,7 +68,7 @@ class MainWindow(QMainWindow):
                                 button = 'Ok',
                                 icon='Information')
             msg.exec_()
-        except :
+        except:
             msg = MassageWindow(title = 'Fetch Data',
                                 text="Couldn't Fetch Data.\nCheck your internet Connection.",
                                 button = 'Abort',
@@ -70,6 +76,7 @@ class MainWindow(QMainWindow):
             msg.exec_()
 
     def save_tocsv(self):
+        """Function to save data to csv files when the buitton is pressed"""
         if self.extracted_data:
             self.folderpath = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select Folder')
             if self.folderpath == '' : return
@@ -95,6 +102,7 @@ class MainWindow(QMainWindow):
             msg.exec_()
 
     def save_todb(self):
+        """Function to save the data to MYSQL DataBase when the button is pressed"""
         if self.extracted_data:
             self.input_dialog = DBInputWindow()
             self.input_dialog.exec()
@@ -126,6 +134,7 @@ class MainWindow(QMainWindow):
             msg.exec_()
 
     def show_statictics(self):
+        """Function to show statictics of players when the button is pressed"""
         if self.show_option == 1:
             self.input_dialog = DBInputWindow()
             self.input_dialog.exec()
@@ -134,22 +143,22 @@ class MainWindow(QMainWindow):
                 if self.localhost == '' : self.localhost = 'localhost'
                 if self.user == '' : self.user = 'user'
                 if self.password == '' : self.password = 'password'
-            # Fetching the data for the database
-            try :
-                self.data, self.colnames = self.fetch_data_from_database(host = self.localhost, user = self.user, password=self.password)
-                self.stat_window = StatisticsWindow(self.data, self.colnames)
-                self.data, self.colnames = None, None
-                self.stat_window.closed.connect(self.show)
-                self.stat_window.show()
-                self.hide()
-                   
-            except:
-                msg = QMessageBox()
-                msg.setWindowTitle('Show Statistics from Data in DataBase')
-                msg.setText("Couldn't Fetch Data From MYSQL DataBase.\n- Make sure that the database login information are right.")
-                msg.setStandardButtons(QMessageBox.Abort)
-                msg.setIcon(QMessageBox.Critical)
-                msg.exec_()
+                # Fetching the data for the database
+                try :
+                    self.data, self.colnames = self.fetch_data_from_database(host = self.localhost, user = self.user, password=self.password)
+                    self.stat_window = StatisticsWindow(self.data, self.colnames)
+                    self.data, self.colnames = None, None
+                    self.stat_window.closed.connect(self.show)
+                    self.stat_window.show()
+                    self.hide()
+                    
+                except:
+                    msg = QMessageBox()
+                    msg.setWindowTitle('Show Statistics from Data in DataBase')
+                    msg.setText("Couldn't Fetch Data From MYSQL DataBase.\n- Make sure that the database login information are right.")
+                    msg.setStandardButtons(QMessageBox.Abort)
+                    msg.setIcon(QMessageBox.Critical)
+                    msg.exec_()
         elif self.show_option == 0:
 
             try :
@@ -209,6 +218,7 @@ class MainWindow(QMainWindow):
 
             
     def show_option_changed(self, index):
+        """Function to change the option variable when the user select othe option"""
         self.show_option = index
 
 
@@ -274,12 +284,3 @@ class MainWindow(QMainWindow):
 
         return result, col_names
     
-
-
-
-
-if __name__ =='__main__':
-    app = QApplication(sys.argv)
-    win = MainWindow()
-    win.show()
-    sys.exit(app.exec_())
