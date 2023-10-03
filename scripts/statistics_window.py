@@ -1,10 +1,8 @@
 from PyQt5 import QtCore , QtGui, QtWidgets
 from PyQt5.QtCore import QAbstractTableModel, Qt, QSortFilterProxyModel , pyqtSignal
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QDialog, QFormLayout, QDialogButtonBox, QMessageBox
 from PyQt5.QtWidgets import  QVBoxLayout, QWidget, QTableView, QLineEdit, QHBoxLayout, QLabel,QComboBox
 import sys
-import mysql.connector
-
 
 class TableModel(QAbstractTableModel):
     def __init__(self, data, colnames):
@@ -39,21 +37,18 @@ class TableModel(QAbstractTableModel):
         return super().headerData(section, orientation, role)
 
 
-
-
 class StatisticsWindow(QMainWindow):
 
     closed = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, data, colnames):
         super(StatisticsWindow, self).__init__()
         self.table = QTableView()
+        self._data, self._colnames = data, colnames
 
-        # Fetching the data for the database
-        self.data, self.colnames = self.fetch_data_from_database(user = 'mohamed')
 
         # Creating table model with the data
-        self.model = TableModel(self.data, self.colnames)
+        self.model = TableModel(self._data, self._colnames)
         self.proxy_model = QSortFilterProxyModel()
         self.proxy_model.setFilterKeyColumn(0)
         self.proxy_model.setFilterCaseSensitivity(False)
@@ -108,6 +103,9 @@ class StatisticsWindow(QMainWindow):
         self.setWindowIcon(icon)
         self.setWindowTitle('Fantasy Premier Leauge Statistics')
 
+    def close_me(self):
+        # handler for signal    
+        self.close()
 
     # Function to change the column to be filtered on 
     def filtered_col_changed(self, index):
@@ -115,72 +113,63 @@ class StatisticsWindow(QMainWindow):
 
 
 
-    def fetch_data_from_database(self, host = 'localhost', user = 'root', password = 'password', dbname = 'fpl'):
-        """
-        Parameters:
-            host (str) (optional) : name of the host, default is 'localhost'.
-            user (str) (optional) : name of the user, default is 'root'.
-            password (optional) : user password, default is 'password'.
-            dbname (optional) : name of the database to be created , default is 'fpl'.
-
-
-        Returns:
-            Result : All the data in the database
-            Column names : The column names of the data returned
-
-        """
-                           # Creating a connection to the database.
-        conn = mysql.connector.connect(
-            host = host,
-            user = user,
-            password = password,
-            database = dbname
-        )
-        cur = conn.cursor()
-
-        # Defining the sql Syntax.
-        sql =   """
-                SELECT CONCAT(p.first_name, ' ', p.second_name) AS Name,
-                       t.name AS 'Team Name', 
-                       po.position_name AS 'Position',
-                       p.cost / 10.0 AS Cost,
-                       pp.total_points AS 'Total Points', 
-                       pp.form AS Form, 
-                       pp.goals_scored AS 'Goals Scored',
-                       pp.bonus_points AS 'Bonus Points', 
-                       pp.points_per_game AS 'Points Per Game', 
-                       pp.selected_by_percent AS 'Selected By Percent', 
-                       pp.minutes_played AS 'Minutes Played', 
-                       pp.threat AS Threat,
-                       pp.assists AS Assists, 
-                       pp.clean_sheets AS 'Clean Sheets',
-                       pp.goals_conceded AS 'Goals Conceded', 
-                       pp.yellow_cards AS 'Yellow Cards', 
-                       pp.red_cards AS 'Red Cards',
-                       pp.games_started AS 'Games Started', 
-                       t.strength AS 'Team Strength'
-                  FROM team AS t
-                  JOIN player AS p ON t.id = p.team_id
-                  JOIN player_performance AS pp ON p.id = pp.player_id
-                  JOIN position AS po ON po.id = p.position_id
-                 ORDER BY 5 DESC
-                """
-        cur.execute(sql)
-
-        # Fetching the data and columns names
-        result = cur.fetchall()
-        col_names = cur.column_names
-        
-        # Closing the connection and returning the data
-        cur.close()
-        conn.close()
-
-        return result, col_names
     
     def closeEvent(self, event):
         self.closed.emit()
         event.accept()
 
+
+class DBInputWindow(QDialog):
+    ok_pressed = 0
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle('DataBase Information')
+        self.setFixedSize(400,150)
+
+        self.localhost = QLineEdit(self)
+        self.localhost.setPlaceholderText('default : localhost')
+
+        self.user = QLineEdit(self)
+        self.user.setPlaceholderText('default : user')
+
+        self.password = QLineEdit(self)
+        self.password.setPlaceholderText('default : password')
+
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
+
+        layout = QFormLayout(self)
+        layout.addWidget(QLabel("Leave Null For default Values."))
+        layout.addRow("Enter localhost", self.localhost)
+        layout.addRow("Enter user name", self.user)
+        layout.addRow("Enter user password", self.password)
+        layout.addWidget(buttonBox)
+
+        buttonBox.accepted.connect(self.accept)
+        buttonBox.rejected.connect(self.reject)
+
+    def accept(self) -> None:
+        self.ok_pressed = 1
+        return super().accept()
+    
+    def getInputs(self):
+        return self.localhost.text(), self.user.text(), self.password.text()
+
+
+
+class MassageWindow(QMessageBox):
+    def __init__(self, title,text,button,icon):
+        super(MassageWindow, self).__init__()
+        self.setWindowTitle(title)
+        self.setText(text)
+        if button == 'Abort':
+            self.setStandardButtons(QMessageBox.Abort)
+        elif button =='Ok':
+            self.setStandardButtons(QMessageBox.Ok)
+        
+        if icon == 'Critical':
+            self.setIcon(QMessageBox.Critical)
+        elif icon == 'Information':
+            self.setIcon(QMessageBox.Information)
 
 
 if __name__ == '__main__':
