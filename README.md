@@ -1,5 +1,4 @@
 # Fantasy Premier League Scraper
-![image](https://github.com/MoohamedElsayed/Fantasy-Premier-League-Scraper/assets/108439954/8b43cda0-6c20-431e-af82-4af58287c134)
 
 ## Description
 Fantasy Premier League Scraper is a Python-based project that allows users to scrape data from the Fantasy Premier League API.
@@ -35,7 +34,8 @@ The project features a GUI that enables users to easily scrape the data, save it
     ![Screenshot_20231006_165410](https://github.com/MoohamedElsayed/Fantasy-Premier-League-Scraper/assets/108439954/b1ff14f3-6231-46d4-9afb-495e7581ff55)
 5. Save the data to MYSQL DataBase (make sure you put right contact information) (optional).    
     ![Screenshot_20231006_165424](https://github.com/MoohamedElsayed/Fantasy-Premier-League-Scraper/assets/108439954/2ecb4ba8-de0b-448e-8dce-ef36613f2c92)
-    ![Screenshot_20231006_165606](https://github.com/MoohamedElsayed/Fantasy-Premier-League-Scraper/assets/108439954/eca5aeb6-c816-49a0-8d98-d04136842fe6)
+    ![Screenshot_20231006_214432](https://github.com/MoohamedElsayed/Fantasy-Premier-League-Scraper/assets/108439954/2717a656-95e8-418e-9c5b-c2001577557b)
+    ![Screenshot_20231006_165442](https://github.com/MoohamedElsayed/Fantasy-Premier-League-Scraper/assets/108439954/62701dbe-93d4-48f4-b4d3-87b030f60291)
 
 
 
